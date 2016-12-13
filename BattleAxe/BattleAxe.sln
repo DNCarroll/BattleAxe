@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleAxe", "BattleAxe.csproj", "{4E224103-83CF-46D0-A785-0B9D38F90B2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleAxe.Test", "..\BattleAxe.Test\BattleAxe.Test.csproj", "{AD5A3F3A-284F-4363-AD43-CD15AE1A0F30}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E224103-83CF-46D0-A785-0B9D38F90B2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E224103-83CF-46D0-A785-0B9D38F90B2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E224103-83CF-46D0-A785-0B9D38F90B2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E224103-83CF-46D0-A785-0B9D38F90B2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD5A3F3A-284F-4363-AD43-CD15AE1A0F30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD5A3F3A-284F-4363-AD43-CD15AE1A0F30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD5A3F3A-284F-4363-AD43-CD15AE1A0F30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD5A3F3A-284F-4363-AD43-CD15AE1A0F30}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
