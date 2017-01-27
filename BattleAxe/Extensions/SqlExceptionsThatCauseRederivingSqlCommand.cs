@@ -17,6 +17,16 @@ namespace BattleAxe {
             return false;
         }
 
+        public static Tuple<bool, SqlCommand> ReexecuteCommand(SqlException sqlException, SqlCommand command) {
+            if (SqlExceptionsThatCauseRederivingSqlCommand.Values.Contains(sqlException.Number)) {
+                var newCommand = CommandMethods.RederiveCommand(command);
+                if (newCommand != null) {
+                    return new Tuple<bool, SqlCommand>(true, newCommand);
+                }
+            }
+            return new Tuple<bool, SqlCommand>(false, command);
+        }
+
         public static List<int> Values { get; set; } = new List<int> { 201, 8144 };
     }
 }

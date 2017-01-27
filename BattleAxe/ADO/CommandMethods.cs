@@ -30,7 +30,8 @@ namespace BattleAxe {
         /// <param name="connectionString"></param>
         /// <param name="commandType"></param>
         /// <returns></returns>
-        public static SqlCommand GetCommand(this string commandText, string connectionString, CommandType commandType = CommandType.StoredProcedure) {
+        public static SqlCommand GetCommand(this string commandText, string connectionString,             
+            CommandType commandType = CommandType.StoredProcedure) {
             connectionString = ConnectionMaintenance.ConnectionStringTimeout(connectionString);
             var found = getFromCache(commandText, connectionString);
             if (found == null) {
@@ -41,7 +42,7 @@ namespace BattleAxe {
                     };
 
                     if (commandType == CommandType.StoredProcedure) {
-                        deriveParametersForProcedure(commandText, connectionString, conn, sqlCommand);
+                        deriveParametersForProcedure(commandText, connectionString, sqlCommand);
                     }
                     else {
                         deriveParametersForInlineCommand(sqlCommand);
@@ -49,7 +50,6 @@ namespace BattleAxe {
                     if (SqlCommandCacheTimeout != SqlCommandCacheTimeout.IsNeverCached) {
                         cachedCommands.Add(new SqlCommandCacheObject(commandText, connectionString, sqlCommand));
                     }
-                    sqlCommand.Connection = new SqlConnection(connectionString);
                     return sqlCommand;
                 }
             }
@@ -57,6 +57,9 @@ namespace BattleAxe {
                 return createCommandFromCachedDefinedCommand(found);
             }
         }
+
+        public static SqlCommand GetCommand(this ICommandDefinition definition) => 
+            definition.CommandText.GetCommand(definition.ConnectionString, definition.CommandType);
 
         static SqlCommandCacheObject getFromCache(string commandText, string connectionString) {
             var key = commandText + connectionString;
@@ -68,34 +71,32 @@ namespace BattleAxe {
             return found;
         }
 
-        private static void deriveParametersForProcedure(string commandText, string connectionString, SqlConnection conn, SqlCommand sqlCommand) {
-            var temp = new SqlCommand {
-                CommandText = commandText,
-                Connection = conn,
-                CommandType = CommandType.StoredProcedure
-            };
-            conn.Open();
-            SqlCommandBuilder.DeriveParameters(temp);
-            foreach (SqlParameter p in temp.Parameters) {
-                var typeName = p.TypeName;
-                if (typeName != null && typeName.Count(c => c == '.') == 2) {
-                    typeName = typeName.Substring(typeName.IndexOf(".") + 1);
-                }
-                sqlCommand.Parameters.Add(new SqlParameter {
-                    Direction = p.Direction,
-                    ParameterName = p.ParameterName,
-                    SqlDbType = p.SqlDbType,
-                    Size = p.Size,
-                    Precision = p.Precision,
-                    Scale = p.Scale,
-                    SourceColumn = p.ParameterName.Replace("@", ""),
-                    TypeName = typeName == null ? null : typeName
-                });
-                if (p.SqlDbType == SqlDbType.Structured) {
-                    addStructureFieldForParameter(sqlCommand, typeName, connectionString);
+        private static void deriveParametersForProcedure(string commandText, string connectionString, SqlCommand sqlCommand) {            
+            using (var connection = new SqlConnection(connectionString)) {
+                using (var temp = new SqlCommand(commandText, connection) { CommandType = CommandType.StoredProcedure }) {
+                    connection.Open();
+                    SqlCommandBuilder.DeriveParameters(temp);
+                    foreach (SqlParameter p in temp.Parameters) {
+                        var typeName = p.TypeName;
+                        if (typeName != null && typeName.Count(c => c == '.') == 2) {
+                            typeName = typeName.Substring(typeName.IndexOf(".") + 1);
+                        }
+                        sqlCommand.Parameters.Add(new SqlParameter {
+                            Direction = p.Direction,
+                            ParameterName = p.ParameterName,
+                            SqlDbType = p.SqlDbType,
+                            Size = p.Size,
+                            Precision = p.Precision,
+                            Scale = p.Scale,
+                            SourceColumn = p.ParameterName.Replace("@", ""),
+                            TypeName = typeName == null ? null : typeName
+                        });
+                        if (p.SqlDbType == SqlDbType.Structured) {
+                            addStructureFieldForParameter(sqlCommand, typeName, connectionString);
+                        }
+                    }
                 }
             }
-            conn.Close();
         }
 
         private static void addStructureFieldForParameter(SqlCommand referenceCommand, string typeName, string connectionString) {
@@ -139,7 +140,7 @@ where
         }
 
         private static SqlCommand createCommandFromCachedDefinedCommand(SqlCommandCacheObject found) {
-            var sqlCommand = new SqlCommand { CommandText = found.CommandText, Connection = new SqlConnection(found.ConnectionString) };
+            var sqlCommand = new SqlCommand { CommandText = found.CommandText };            
             sqlCommand.CommandType = found.SqlCommand.CommandType;
             foreach (SqlParameter item in found.SqlCommand.Parameters) {
                 sqlCommand.Parameters.Add(new SqlParameter {
@@ -154,7 +155,7 @@ where
                 });
             }
             return sqlCommand;
-        }
+        }        
 
         public static void RemoveFromCache(SqlCommand command) {
             var found = getFromCache(command.CommandText, command.Connection.ConnectionString);

@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ADO\SqlCommandCacheObject.cs" />
+    <Compile Include="CommandDefinition.cs" />
     <Compile Include="Extensions\SqlExceptionsThatCauseRederivingSqlCommand.cs" />
     <Compile Include="Compiler.cs" />
     <Compile Include="ADO\ConnectionMaintenance.cs" />

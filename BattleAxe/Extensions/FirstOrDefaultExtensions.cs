@@ -1,61 +1,43 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data;
+using System.Data.SqlClient;
 
 namespace BattleAxe {
     public static class FirstOrDefaultExtensions {
 
-        public static BattleAxe.Dynamic FirstOrDefault(this SqlCommand command, BattleAxe.Dynamic parameter = null) => 
-            command.FirstOrDefault<Dynamic>(parameter);
-
-
         /// <summary>
-        /// the command should have the connections string set,  doesnt have to be open but
-        /// the string should be set. 
+        /// /
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="command"></param>
+        /// <param name="definition"></param>
         /// <param name="parameter"></param>
-        /// <returns></returns>       
-        public static T FirstOrDefault<T>(this SqlCommand command, T parameter = null)
-            where T : class, new() {
+        /// <returns></returns>
+        public static T FirstOrDefault<T>(this ICommandDefinition definition, T parameter = null) where T : class, new() {
             T newObj = null;
-            try {
-                if (command.IsConnectionOpen()) {
-                    ParameterMethods.SetInputs(parameter, command);
-                    newObj = DataReaderMethods.GetFirst<T>(command);
-                    ParameterMethods.SetOutputs(parameter, command);
+            using (var connection = new SqlConnection(definition.ConnectionString)) {
+                using (var command = definition.GetCommand()) {
+                    command.Connection = connection;
+                    connection.Open();
+                    try {
+                        ParameterMethods.SetInputs(parameter, command);
+                        newObj = DataReaderMethods.GetFirst<T>(command);
+                        ParameterMethods.SetOutputs(parameter, command);
+                    }
+                    catch (SqlException sqlException) {
+                        var deriveResult = SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, command);
+                        if (deriveResult.Item1) {
+                            return definition.FirstOrDefault(parameter);
+                        }
+                        else {
+                            throw sqlException;
+                        }
+                    }
+                    catch {
+                        throw;
+                    }
                 }
-            }
-            catch (SqlException sqlException) {
-                if (SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, ref command)) {
-                    return command.FirstOrDefault(parameter);
-                }
-                else {
-                    throw sqlException;
-                }
-            }
-            catch {
-                throw;
-            }
-            finally {
-                command.CloseConnection();
             }
             return newObj;
         }
-
-        /// <summary>
-        /// the command should have the connections string set,  doesnt have to be open but
-        /// the string should be set. 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <param name="command"></param>
-        /// <returns></returns>
-        public static T FirstOrDefault<T>(this T parameter, SqlCommand command)
-            where T : class, new() => command.FirstOrDefault(parameter);
-
-
-        public static Dynamic FirstOrDefault(this Dynamic parameter, SqlCommand command) => 
-            command.FirstOrDefault<Dynamic>(parameter);
 
         /// <summary>
         /// the command should have the connections string set,  doesnt have to be open but
@@ -66,32 +48,68 @@ namespace BattleAxe {
         /// <param name="parameter"></param>
         /// <param name="command"></param>
         /// <returns></returns>
-        public static R FirstOrDefault<R, P>(this P parameter, SqlCommand command)
+        public static R FirstOrDefault<R, P>(this P parameter, ICommandDefinition definition)
             where R : class, new()
             where P : class {
             R newObj = null;
-            try {
-                if (command.IsConnectionOpen()) {
-                    ParameterMethods.SetInputs(parameter, command);
-                    newObj = DataReaderMethods.GetFirst<R>(command);
-                    ParameterMethods.SetOutputs(parameter, command);
+            using (var connection = new SqlConnection(definition.ConnectionString)) {
+                using (var command = definition.GetCommand()) {
+                    command.Connection = connection;
+                    connection.Open();
+                    try {
+
+                        ParameterMethods.SetInputs(parameter, command);
+                        newObj = DataReaderMethods.GetFirst<R>(command);
+                        ParameterMethods.SetOutputs(parameter, command);
+
+                    }
+                    catch (SqlException sqlException) {
+                        var deriveResult = SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, command);
+                        if (deriveResult.Item1) {
+                            return parameter.FirstOrDefault<R, P>(definition);
+                        }
+                        else {
+                            throw sqlException;
+                        }
+                    }
+                    catch {
+                        throw;
+                    }
                 }
-            }
-            catch (SqlException sqlException) {
-                if (SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, ref command)) {
-                    return FirstOrDefaultExtensions.FirstOrDefault<R, P>(parameter, command);
-                }
-                else {
-                    throw sqlException;
-                }
-            }
-            catch {
-                throw;
-            }
-            finally {
-                command.CloseConnection();
             }
             return newObj;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="definition"></param>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        public static Dynamic FirstOrDefault(this ICommandDefinition definition, BattleAxe.Dynamic parameter = null) =>
+            definition.FirstOrDefault<Dynamic>(parameter);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="commandText"></param>
+        /// <param name="connectionString"></param>
+        /// <param name="parameter"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        public static T FirstOrDefault<T>(this string commandText, string connectionString, T parameter = null, CommandType? commandType = null)
+            where T : class, new() => new CommandDefinition(commandText, connectionString, commandType).FirstOrDefault(parameter);
+        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="parameter"></param>
+        /// <param name="definition"></param>
+        /// <returns></returns>
+        public static T FirstOrDefault<T>(this T parameter, ICommandDefinition definition) where T: class, new() => definition.FirstOrDefault<T>(parameter);
+        
     }
 }
