@@ -16,7 +16,14 @@ namespace BattleAxe.Test {
 
             var newItem = new testTable { name = "new thing", value = "important" };
             "testTable_Update".Execute(ConnectionString, newItem);           
-            var item = $"SELECT * FROM testTable WHERE id ={newItem.id}".FirstOrDefault<testTable>(ConnectionString);                
+            var item = $"SELECT * FROM testTable WHERE id ={newItem.id}".FirstOrDefault<testTable>(ConnectionString);
+
+            Dynamic dyn = new Dynamic();
+            dyn["name"] = "new dynamic";
+            dyn["value"] = "important";
+            "testTable_Update".Execute(ConnectionString, dyn);
+
+
             Assert.IsTrue(item != null && item.value == newItem.value && item.name == newItem.name);
         }
 

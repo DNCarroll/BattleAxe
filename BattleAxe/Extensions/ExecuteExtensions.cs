@@ -77,7 +77,7 @@ namespace BattleAxe {
         /// <returns></returns>
         public static T Execute<T>(this string commandText, string connectionString, T parameter = null, CommandType? commandType = null)
             where T : class => new CommandDefinition(commandText, connectionString, commandType).Execute(parameter);
-
+        
         /// <summary>
         /// 
         /// </summary>
