@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using System.Dynamic;
 
 namespace BattleAxe {
-    public class Dynamic : DynamicObject, IBattleAxe, IDisposable {
+    public sealed class Dynamic : DynamicObject, IBattleAxe, IDisposable {
         Dictionary<string, object> dictionary = new Dictionary<string, object>();
         public object this[string property] {
             get {
-                object result = null;
+                object result;
                 this.dictionary.TryGetValue(property, out result);
                 return result;
             }
@@ -85,7 +85,7 @@ namespace BattleAxe {
         public void Dispose() {
             foreach (KeyValuePair<string, object> item in dictionary) {
                 dictionary[item.Key] = null;
-            }
+            }            
         }
     }
 }

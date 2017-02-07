@@ -14,6 +14,20 @@ namespace BattleAxe.Test {
             var id = getMethod(someobject, "ID");
             Assert.IsTrue(id.ToString() == "3");
         }
+
+        [TestMethod]
+        public void TestGetMethod() {
+
+            var someobject = new BattleAxe.Model.TestObject();
+            someobject.ID = 1;
+            var setMethod = Compiler.SetMethod(someobject);
+            var getMethod = Compiler.GetMethod(someobject);
+            setMethod(someobject, "ID", 3);
+            var id = getMethod(someobject, "ID");
+            Assert.IsTrue(id.ToString() == "3");
+
+        }
+
     }
     public class SomeObject {
         public int ID { get; set; }

@@ -19,8 +19,8 @@ namespace BattleAxe {
 
     public static class CommandMethods {
         public static SqlCommandCacheTimeout SqlCommandCacheTimeout { get; set; } = SqlCommandCacheTimeout.Day;
-        internal static List<SqlCommandCacheObject> cachedCommands { get; set; } = new List<SqlCommandCacheObject>();
-        internal static List<Tuple<SqlCommand, string, string>> structureFields { get; set; } = 
+        internal static List<SqlCommandCacheObject> CachedCommands { get; set; } = new List<SqlCommandCacheObject>();
+        internal static List<Tuple<SqlCommand, string, string>> StructureFields { get; set; } = 
             new List<Tuple<SqlCommand, string, string>>();
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace BattleAxe {
         /// <param name="connectionString"></param>
         /// <param name="commandType"></param>
         /// <returns></returns>
-        public static SqlCommand GetCommand(this string commandText, string connectionString,             
+        public static SqlCommand GetCommand(this string commandText, string connectionString, int commandTimeout,             
             CommandType commandType = CommandType.StoredProcedure) {
             connectionString = ConnectionMaintenance.ConnectionStringTimeout(connectionString);
             var found = getFromCache(commandText, connectionString);
@@ -38,7 +38,8 @@ namespace BattleAxe {
                 using (var conn = new SqlConnection(connectionString)) {
                     var sqlCommand = new SqlCommand {
                         CommandText = commandText,
-                        CommandType = commandType
+                        CommandType = commandType,
+                        CommandTimeout = commandTimeout
                     };
 
                     if (commandType == CommandType.StoredProcedure) {
@@ -48,7 +49,7 @@ namespace BattleAxe {
                         deriveParametersForInlineCommand(sqlCommand);
                     }
                     if (SqlCommandCacheTimeout != SqlCommandCacheTimeout.IsNeverCached) {
-                        cachedCommands.Add(new SqlCommandCacheObject(commandText, connectionString, sqlCommand));
+                        CachedCommands.Add(new SqlCommandCacheObject(commandText, connectionString, sqlCommand));
                     }
                     return sqlCommand;
                 }
@@ -59,11 +60,11 @@ namespace BattleAxe {
         }
 
         public static SqlCommand GetCommand(this ICommandDefinition definition) => 
-            definition.CommandText.GetCommand(definition.ConnectionString, definition.CommandType);
+            definition.CommandText.GetCommand(definition.ConnectionString, definition.CommandTimeout, definition.CommandType);
 
         static SqlCommandCacheObject getFromCache(string commandText, string connectionString) {
             var key = commandText + connectionString;
-            var found = cachedCommands.FirstOrDefault(o => o.Key == key);
+            var found = CachedCommands.FirstOrDefault(o => o.Key == key);
             if (found != null &&
                 found.ExpiresAt < DateTime.Now) {
                 found = null;
@@ -89,7 +90,7 @@ namespace BattleAxe {
                             Precision = p.Precision,
                             Scale = p.Scale,
                             SourceColumn = p.ParameterName.Replace("@", ""),
-                            TypeName = typeName == null ? null : typeName
+                            TypeName = typeName ?? null
                         });
                         if (p.SqlDbType == SqlDbType.Structured) {
                             addStructureFieldForParameter(sqlCommand, typeName, connectionString);
@@ -116,7 +117,7 @@ where
                     using (var reader = command.ExecuteReader()) {
                         while (reader.Read()) {
                             string value = reader.GetString(0);
-                            structureFields.Add(new Tuple<SqlCommand, string, string>(referenceCommand, typeName, value));
+                            StructureFields.Add(new Tuple<SqlCommand, string, string>(referenceCommand, typeName, value));
                         }
                     }
                 }
@@ -160,13 +161,13 @@ where
         public static void RemoveFromCache(SqlCommand command) {
             var found = getFromCache(command.CommandText, command.Connection.ConnectionString);
             if (found != null) {
-                cachedCommands.Remove(found);
+                CachedCommands.Remove(found);
             }
         }
 
         public static SqlCommand RederiveCommand(SqlCommand command) {
             RemoveFromCache(command);
-            return command.CommandText.GetCommand(command.Connection.ConnectionString);
+            return command.CommandText.GetCommand(command.Connection.ConnectionString, command.CommandTimeout);
         }
     }
 }

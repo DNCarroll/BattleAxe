@@ -25,13 +25,12 @@ namespace BattleAxe {
                         executeReaderAndFillList(command, ret);
                         ParameterMethods.SetOutputs(parameter, command);
                     }
-                    catch (SqlException sqlException) {
-                        var deriveResult = SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, command);
-                        if (deriveResult.Item1) {
-                            return definition.ToList(parameter);
+                    catch (SqlException sqlEx) when (sqlEx.ShouldTryReexecute()) {
+                        if (command.IsCommandBuilt()) {
+                            ret = definition.ToList(parameter);
                         }
                         else {
-                            throw sqlException;
+                            throw sqlEx;
                         }
                     }
                     catch {
@@ -66,13 +65,12 @@ namespace BattleAxe {
                             ParameterMethods.SetOutputs(parameter, command);
                         }
                     }
-                    catch (SqlException sqlException) {
-                        var deriveResult = SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, command);
-                        if (deriveResult.Item1) {
-                            return definition.ToList<ret, par>(parameter);
+                    catch (SqlException sqlEx) when (sqlEx.ShouldTryReexecute()) {
+                        if (command.IsCommandBuilt()) {
+                            newList = definition.ToList<ret, par>(parameter);
                         }
                         else {
-                            throw sqlException;
+                            throw sqlEx;
                         }
                     }
                     catch {

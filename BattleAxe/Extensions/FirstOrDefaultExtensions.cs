@@ -22,13 +22,12 @@ namespace BattleAxe {
                         newObj = DataReaderMethods.GetFirst<T>(command);
                         ParameterMethods.SetOutputs(parameter, command);
                     }
-                    catch (SqlException sqlException) {
-                        var deriveResult = SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, command);
-                        if (deriveResult.Item1) {
-                            return definition.FirstOrDefault(parameter);
+                    catch (SqlException sqlEx) when (sqlEx.ShouldTryReexecute()) {
+                        if (command.IsCommandBuilt()) {
+                            newObj =  definition.FirstOrDefault(parameter);
                         }
                         else {
-                            throw sqlException;
+                            throw sqlEx;
                         }
                     }
                     catch {
@@ -57,19 +56,16 @@ namespace BattleAxe {
                     command.Connection = connection;
                     connection.Open();
                     try {
-
                         ParameterMethods.SetInputs(parameter, command);
                         newObj = DataReaderMethods.GetFirst<R>(command);
                         ParameterMethods.SetOutputs(parameter, command);
-
                     }
-                    catch (SqlException sqlException) {
-                        var deriveResult = SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, command);
-                        if (deriveResult.Item1) {
-                            return parameter.FirstOrDefault<R, P>(definition);
+                    catch (SqlException sqlEx) when (sqlEx.ShouldTryReexecute()) {
+                        if (command.IsCommandBuilt()) {
+                            newObj = parameter.FirstOrDefault<R, P>(definition);
                         }
                         else {
-                            throw sqlException;
+                            throw sqlEx;
                         }
                     }
                     catch {

@@ -27,13 +27,12 @@ namespace BattleAxe {
                             ParameterMethods.SetOutputs(obj, command);
                         }
                     }
-                    catch (SqlException sqlException) {
-                        var deriveResult = SqlExceptionsThatCauseRederivingSqlCommand.ReexecuteCommand(sqlException, command);
-                        if (deriveResult.Item1) {
-                            return definition.Update(objs);
+                    catch (SqlException sqlEx) when (sqlEx.ShouldTryReexecute()) {
+                        if (command.IsCommandBuilt()) {
+                            objs = definition.Update(objs);
                         }
                         else {
-                            throw sqlException;
+                            throw sqlEx;
                         }
                     }
                     catch {

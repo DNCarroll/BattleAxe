@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
+
 namespace BattleAxe {
     public interface ICommandDefinition {
         string ConnectionString { get; set; }
         string CommandText { get; set; }
         CommandType CommandType { get; set; }
+        int CommandTimeout { get; set; }
     }
 
     public class ProcedureDefinition : CommandDefinition {
@@ -24,7 +26,7 @@ namespace BattleAxe {
         public string ConnectionString {
             get {
                 if (string.IsNullOrEmpty(connectionString)) {
-                    throw new System.Exception("Command defintion requires connection string.");
+                    throw new System.InvalidOperationException("Command defintion requires connection string.");
                 }
                 return connectionString; }
             set { connectionString = value; }
@@ -35,11 +37,13 @@ namespace BattleAxe {
         public string CommandText {
             get {
                 if (string.IsNullOrEmpty(commandText)) {
-                    throw new System.Exception("Command definition requires command text.");
+                    throw new System.InvalidOperationException("Command definition requires command text.");
                 }
                 return commandText; }
             set { commandText = value; }
         }
+
+        public int CommandTimeout { get; set; } = 30;
 
         public CommandType CommandType { get; set; }
 
@@ -87,8 +91,7 @@ namespace BattleAxe {
                 throw new Exception($"Procedure {this.CommandText} could not be determined their are multiple procedures with same name across the schemas.");
             }
         }
-
-
+        
         protected List<Tuple<string, string>> getSchemaAndProcedure() {
             List<Tuple<string, string>> ret = new List<Tuple<string, string>>();
             using (var connection = new SqlConnection(connectionString)) {
@@ -103,7 +106,7 @@ namespace BattleAxe {
             }
             return ret;
         }
-
+        
         string selectForProcedure(string commandText) {
             return $@"select
                         s.name schemaName,
