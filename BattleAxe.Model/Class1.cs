@@ -11,6 +11,8 @@ namespace BattleAxe.Model
         public int ID { get; set; }
         public string Name { get; set; }
         public SomeOtherObject SomeotherObejct { get; set; }
+
+        public BattleAxe.Model2.SomeOtherOtherObject SomeOther { get; set; }
     }
 
     public class SomeOtherObject {

@@ -14,10 +14,13 @@ namespace BattleAxe {
 
     public class ProcedureDefinition : CommandDefinition {
         public ProcedureDefinition(string commandText, string connectionString)
-            : base(commandText, connectionString, CommandType.StoredProcedure) {
-            if (commandText.IndexOf(".") == 0) {
-                setCommandText();
-            }
+            : base(commandText, connectionString, CommandType.StoredProcedure) { 
+        }
+    }
+
+    public class TextDefinition : CommandDefinition {
+        public TextDefinition(string commandText, string connectionString)
+            : base(commandText, connectionString, CommandType.Text) {
         }
     }
 
@@ -66,14 +69,13 @@ namespace BattleAxe {
         }
 
         void setCommandType(CommandType? commandType) {
-            if (commandType.HasValue) {
+            if (!commandType.HasValue) {
                 var pattern = "^\\w+\\.";
                 if (System.Text.RegularExpressions.Regex.IsMatch(this.CommandText, pattern)) {
                     this.CommandType = System.Data.CommandType.StoredProcedure;
                 }
                 else {
-                    setCommandText();
-                    this.CommandType = System.Data.CommandType.Text;
+                    setCommandText();                    
                 }
             }
             else {
@@ -90,12 +92,15 @@ namespace BattleAxe {
             else if (existsOnServer.Count > 0) {
                 throw new Exception($"Procedure {this.CommandText} could not be determined their are multiple procedures with same name across the schemas.");
             }
+            else {
+                this.CommandType = CommandType.Text;
+            }
         }
         
         protected List<Tuple<string, string>> getSchemaAndProcedure() {
             List<Tuple<string, string>> ret = new List<Tuple<string, string>>();
             using (var connection = new SqlConnection(connectionString)) {
-                using (var command = new SqlCommand(commandText, connection)) {
+                using (var command = new SqlCommand(selectForProcedure(commandText), connection)) {
                     connection.Open();
                     using (var reader = command.ExecuteReader()) {
                         while (reader.Read()) {
@@ -106,7 +111,8 @@ namespace BattleAxe {
             }
             return ret;
         }
-        
+
+
         string selectForProcedure(string commandText) {
             return $@"select
                         s.name schemaName,
@@ -117,8 +123,8 @@ namespace BattleAxe {
                       where
                         s.name != 'sys' and
                         o.is_ms_shipped = 0 and
-                        o.name = '{commandText}'
-                        type not in ('P')";
+                        o.name = '{commandText}' and
+                        type in ('P')";
         }
 
     }    

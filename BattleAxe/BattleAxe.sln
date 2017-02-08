@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleAxe.Test", "..\Battle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleAxe.Model", "..\BattleAxe.Model\BattleAxe.Model.csproj", "{EE28DAA2-998F-4184-8EBF-01E0067BA22C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleAxe.Model2", "..\BattleAxe.Model2\BattleAxe.Model2.csproj", "{3C8C3DAB-AC31-4E41-B6B6-32E5923AE0B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{EE28DAA2-998F-4184-8EBF-01E0067BA22C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE28DAA2-998F-4184-8EBF-01E0067BA22C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE28DAA2-998F-4184-8EBF-01E0067BA22C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C8C3DAB-AC31-4E41-B6B6-32E5923AE0B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8C3DAB-AC31-4E41-B6B6-32E5923AE0B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C8C3DAB-AC31-4E41-B6B6-32E5923AE0B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C8C3DAB-AC31-4E41-B6B6-32E5923AE0B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

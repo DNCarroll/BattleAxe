@@ -30,7 +30,7 @@ namespace BattleAxe {
         /// <param name="connectionString"></param>
         /// <param name="commandType"></param>
         /// <returns></returns>
-        public static SqlCommand GetCommand(this string commandText, string connectionString, int commandTimeout,             
+        public static SqlCommand GetCommand(this string commandText, string connectionString, int commandTimeout = 30,             
             CommandType commandType = CommandType.StoredProcedure) {
             connectionString = ConnectionMaintenance.ConnectionStringTimeout(connectionString);
             var found = getFromCache(commandText, connectionString);

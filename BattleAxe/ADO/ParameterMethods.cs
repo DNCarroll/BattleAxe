@@ -34,7 +34,7 @@ namespace BattleAxe {
         }
 
         static void insureSourceColumnExists(SqlParameterCollection parameters) {
-            if (parameters?.Count > 0 && string.IsNullOrEmpty(parameters[1].SourceColumn)) {
+            if (parameters?.Count > 0 && string.IsNullOrEmpty(parameters[0].SourceColumn)) {
                 foreach (SqlParameter item in parameters) {
                     item.SourceColumn = item.ParameterName.Replace("@", "");
                 }
