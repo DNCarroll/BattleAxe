@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Dynamic;
 
 namespace BattleAxe {
-    public sealed class Dynamic : DynamicObject, IBattleAxe, IDisposable {
+    public class Dynamic : DynamicObject, IBattleAxe, IDisposable {
         Dictionary<string, object> dictionary = new Dictionary<string, object>();
         public object this[string property] {
             get {

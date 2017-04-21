@@ -19,11 +19,11 @@ namespace BattleAxe {
             where T : class {
             Action<T, string, object> setMethod = null;
             if (obj is IBattleAxe) {
-                setMethod = (o, property, value) => ((IBattleAxe)o)[property] = value;                
+                setMethod = (o, property, value) => ((IBattleAxe)o)[property] = value;
             }
             else {
                 var tempGetSetMethod = getSetMethodFromInitialReflection(obj);
-                setMethod = (o, property, value) => tempGetSetMethod(o, property, value);                
+                setMethod = (o, property, value) => tempGetSetMethod(o, property, value);
             }
             return setMethod;
         }
@@ -57,7 +57,7 @@ namespace BattleAxe {
             }
             else {
                 GetValue tempGetMethod = getGetMethodFromInitialReflection(sourceForInputParameters);
-                getMethod = (obj, property) => tempGetMethod(obj, property);                
+                getMethod = (obj, property) => tempGetMethod(obj, property);
             }
             return getMethod;
         }
@@ -82,7 +82,6 @@ namespace BattleAxe {
             return null;
         }
 
-        //load type form the FullName?
         private static GetValue getGetMethodFromInitialReflection<T>(T obj)
             where T : class {
             var type = typeof(T);
@@ -107,10 +106,10 @@ namespace BattleAxe {
                     (defaultValue != null ?
                         $"value != null ? {convertMethod} : {defaultValue};" :
                         $"{convertMethod};"
-                    ) + "break;";                
+                    ) + "break;";
                 return ret;
             }
-            
+
 
             public static SetValue<T> Value<T>() where T : class => Value<T>(typeof(T));
 
@@ -194,10 +193,10 @@ namespace BattleAxe {
             }
 
             public static string GetSetMethod(Type type) {
-                var properties = type.GetProperties();
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 var cases = new StringBuilder();
 
-                var method = getSetValue(type.FullName);
+                var method = getSetValue(Compiler.TypeName(type));
 
                 foreach (var property in properties) {
                     //only add sets that can
@@ -275,14 +274,14 @@ namespace BattleAxe {
                             cases.AppendLine(caseStatement(propertyName, "DateTime", "BattleAxe.NullConverter.ToDateTime(value)"));
                         }
                         else if (propertyType.IsEnum) {
-                            var typeName = propertyType.FullName;
-                            var caseStatement = $"case \"{propertyName}\": obj.{propertyName} = value == null ? default({typeName}) : ({typeName})System.Enum.Parse(typeof({typeName}), value.ToString()); break;";                            
+                            var typeName = Compiler.TypeName(propertyType);
+                            var caseStatement = $"case \"{propertyName}\": obj.{propertyName} = value == null ? default({typeName}) : ({typeName})System.Enum.Parse(typeof({typeName}), value.ToString()); break;";
                             cases.AppendLine(caseStatement);
                         }
                         else if (propertyType.Equals(typeof(byte[]))) {
                             //dont really have an answer for this one yet
                             //we go through reader and it reads bytes                            
-                            var caseStatement = $"case \"{propertyName}\": obj.{propertyName} = value!=null && value is byte[] ? (byte[])value: null; break;";                            
+                            var caseStatement = $"case \"{propertyName}\": obj.{propertyName} = value!=null && value is byte[] ? (byte[])value: null; break;";
                             cases.AppendLine(caseStatement);
                         }
                         else if (!propertyType.IsClass &&
@@ -299,7 +298,7 @@ namespace BattleAxe {
                 return null;
             }
 
-            
+
 
         }
 
@@ -351,10 +350,10 @@ namespace BattleAxe {
             }
 
             public static string GetGetMethod(Type type) {
-                var properties = type.GetProperties();
+                var properties = type.GetProperties(BindingFlags.Public|BindingFlags.Instance);
                 var cases = new StringBuilder();
 
-                var method = getGetValue(type.FullName);
+                var method = getGetValue(Compiler.TypeName(type));
                 //only add properties that have get 
                 //Item = the property index?
                 foreach (var property in properties) {
@@ -365,7 +364,7 @@ namespace BattleAxe {
                         if (propertyType.Equals(typeof(DateTime))) {
                             cases.AppendLine($"case \"{propertyName}\": return obj.{propertyName} == System.DateTime.MinValue ? null : (object)obj.{propertyName};");
                         }
-                        else if(!propertyType.IsClass || propertyType.Equals(typeof(string))) {
+                        else if (!propertyType.IsClass || propertyType.Equals(typeof(string))) {
                             cases.AppendLine($"case \"{propertyName}\": return obj.{propertyName};");
                         }
                     }
@@ -430,8 +429,10 @@ namespace BattleAxe {
             }
         }
 
-        
+        public static string TypeName(Type type) =>
+            type.FullName.Replace("+", ".");
     }
+
 
     public static class NullConverter {
         public static int? ToInt(object value) {

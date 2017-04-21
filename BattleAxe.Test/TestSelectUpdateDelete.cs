@@ -108,10 +108,33 @@ namespace BattleAxe.Test {
         public int TestNumber { get; set; }
         public string Name { get; set; }
         public string Note { get; set; }
-        //void asdf() {
-        //   // "obj.{propertyName} = ({type})System.Enum.Parse(typeof({type}), value.ToString()); break;";
-        //    object value = null;
-        //    obj.{propertyName} = value == null ? default({type}) : ({type})System.Enum.Parse(typeof({type}), value.ToString()); break;
-        //}
+        public Guid GuidKey { get; set; } = Guid.NewGuid();
+
+        private LookupKey lookupKey = LookupKey.Default;
+
+        public LookupKey LookupKey {
+            get {
+                if (lookupKey == LookupKey.Default) {
+                    var lastCharacter = TestNumber.ToString().LastOrDefault().ToString();
+                    Enum.TryParse(lastCharacter, out lookupKey);
+                }
+                return lookupKey;
+            }
+            set { lookupKey = value; }
+        }        
+    }
+
+    public enum LookupKey : byte {        
+        Lookup0,
+        Lookup1,
+        Lookup2,
+        Lookup3,
+        Lookup4,
+        Lookup5,
+        Lookup6,
+        Lookup7,
+        Lookup8,
+        Lookup9,
+        Default = 100
     }
 }
