@@ -35,7 +35,7 @@ namespace BattleAxe.Test {
         public void Test_2_TestInsert2() {
 
             var newItem = new testTable { Name = "SomeOther", Note = "important" };
-            (new ProcedureDefinition("testTable_Update", ConnectionString)).Execute(newItem);
+            (new BattleAxe.ProcedureDefinition("testTable_Update", ConnectionString)).Execute(newItem);
             Assert.IsTrue(newItem.TestID > 0);
         }
 
