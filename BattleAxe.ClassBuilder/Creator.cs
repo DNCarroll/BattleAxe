@@ -9,15 +9,26 @@ using System.Windows.Forms;
 
 namespace BattleAxe.Class {
     public class Creator {
-    
+
+        public Creator() { }
+
+        public Creator(CommandDefinition definition) {
+            this.Definition = definition;
+            setFields();
+        }
+
         public string ClassName { get; set; }
         public string NameSpace { get; set; }
         public CommandDefinition Definition { get; set; }
 
+        List<FieldDefintion> fields;
+
+
+
         public bool Initialized() {
             var form = new Form2();
             if(form.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                this.Definition = new CommandDefinition(form.CommandText.Text, form.ConnectionString.Text);
+                this.Definition = new CommandDefinition(form.CommandText.Text, form.GetConnectionString());
                 this.NameSpace = form.NameSpace.Text;
                 this.ClassName = form.ClassName.Text;
                 //now build it
@@ -28,7 +39,9 @@ namespace BattleAxe.Class {
             return false;
         }
 
-        public string Build() {
+
+        void setFields() {
+
             try {
                 using (var conn = new SqlConnection(Definition.ConnectionString)) {
                     using (var cmd = Definition.GetCommand()) {
@@ -41,8 +54,32 @@ namespace BattleAxe.Class {
                         }
                         conn.Open();
                         using (var reader = cmd.ExecuteReader()) {
-                            var fields = getFields(reader);
-                            var properties = getProperties(fields);
+                            fields = getFields(reader);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+
+        public string BuildTester() {
+            try {
+                using (var conn = new SqlConnection(Definition.ConnectionString)) {
+                    using (var cmd = Definition.GetCommand()) {
+                        cmd.Connection = conn;
+
+                        if (cmd.Parameters != null && cmd.Parameters.Count > 0) {
+                            foreach (SqlParameter parameter in cmd.Parameters) {
+                                parameter.Value = DBNull.Value;
+                            }
+                        }
+                        conn.Open();
+                        using (var reader = cmd.ExecuteReader()) {
+                            fields = getFields(reader);
+                            var properties = Properties();
                             return getClass(properties, fields);
                         }
                     }
@@ -84,13 +121,18 @@ namespace {NameSpace} {
             classValue = classValue.Replace("{NameSpace}", this.NameSpace);
             classValue = classValue.Replace("{ClassName}", this.ClassName);
             classValue = classValue.Replace("{Properties}", properties);
-            classValue = classValue.Replace("{SetCaseStatements}", string.Join("\r\n", fields.Where(f => f.SetForIndexer != null).Select(f => f.SetForIndexer).ToArray()));
-            classValue = classValue.Replace("{GetCaseStatements}", string.Join("\r\n", fields.Select(f => f.GetForIndexer()).ToArray()));
+            classValue = classValue.Replace("{SetCaseStatements}", SetCaseStatemetns());
+            classValue = classValue.Replace("{GetCaseStatements}", GetCaseStatements());
             return classValue;
         }
-        
 
-        string getProperties(List<FieldDefintion> fields) =>            
+        public string SetCaseStatemetns() =>
+            string.Join("\r\n", fields.Where(f => f.SetForIndexer != null).Select(f => f.SetForIndexer).ToArray());
+
+        public string GetCaseStatements()=>
+            string.Join("\r\n", fields.Select(f => f.GetForIndexer()).ToArray());
+
+        public string Properties() =>            
             string.Join("\r\n", fields.Select(f => $"public {f.Type} {f.Name} " + " { get; set; }").ToArray());
         
 
@@ -104,8 +146,6 @@ namespace {NameSpace} {
             }
             return ret;
         }
-
-        
 
     }
 

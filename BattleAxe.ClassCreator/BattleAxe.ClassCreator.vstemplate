@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>BattleAxe Class Creator</Name>
+    <Description>Create class from database server, catalog via select statement or stored procedure.</Description>
+    <Icon>BattleAxe.ClassCreator.ico</Icon>
+    <TemplateID>4fb914da-a8d8-469c-828f-e4b91e48458b</TemplateID>
+    <ProjectType>CSharp</ProjectType>
+    <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>Class.cs</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <References>
+      <Reference>
+        <Assembly>System</Assembly>
+      </Reference>
+    </References>
+    <ProjectItem ReplaceParameters="true">Class.cs</ProjectItem>
+  </TemplateContent>
+  <WizardExtension>
+    <Assembly>BattleAxe.Class, Version=1.0.0.0, Culture=Neutral, PublicKeyToken=4f86097d2d94d1e7</Assembly>
+    <FullClassName>BattleAxe.Class.Wizard</FullClassName>
+  </WizardExtension>
+</VSTemplate>

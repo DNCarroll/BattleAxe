@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BattleAxe.Class {
@@ -15,34 +9,43 @@ namespace BattleAxe.Class {
         }
 
         private void button1_Click(object sender, EventArgs e) {
-            if (!string.IsNullOrEmpty(ConnectionString.Text)) {
+            if (fieldsAreValid()) {
                 try {
-                    using (var conn = new System.Data.SqlClient.SqlConnection(ConnectionString.Text)) {
+                    using (var conn = new System.Data.SqlClient.SqlConnection(GetConnectionString())) {
                         conn.Open();
                     }
                 }
                 catch (Exception ex) {
-                    MessageBox.Show($"Failed to open a connection with provided Connection String{Environment.NewLine}{Environment.NewLine}{ex.Message}");
+                    MessageBox.Show(ex.Message);
                     return;
                 }
+                this.DialogResult = DialogResult.OK;
             }
-            else {
-                MessageBox.Show("Connection String required.");
-                return;
+        }
+        bool fieldsAreValid() {
+            List<TextBox> textBoxes = new List<TextBox>(){ Server, Catalog, CommandText, NameSpace, ClassName };
+            if (!UseIntegratedSecurity.Checked) {
+                textBoxes.Add(UserName);
+                textBoxes.Add(Password);
             }
-            if (string.IsNullOrEmpty(CommandText.Text)) {
-                MessageBox.Show("Command Text required.");
-                return;
+            foreach (var item in textBoxes) {
+                if (string.IsNullOrEmpty(item.Text)) {
+                    MessageBox.Show(item.Name + " required.");
+                    return false;
+                }
             }
-            if (string.IsNullOrEmpty(NameSpace.Text)) {
-                MessageBox.Show("namespace required.");
-                return;
-            }
-            if (string.IsNullOrEmpty(ClassName.Text)) {
-                MessageBox.Show("Class Name required.");
-                return;
-            }
-            this.DialogResult = DialogResult.OK;
+            return true;
+        }
+
+        private void UseIntegratedSecurity_CheckedChanged(object sender, EventArgs e) {
+            this.UserName.ReadOnly = this.UseIntegratedSecurity.Checked;
+            this.Password.ReadOnly = this.UseIntegratedSecurity.Checked;
+        }
+
+        public string GetConnectionString() {
+            return this.UseIntegratedSecurity.Checked ?
+                $"Data Source={this.Server.Text};Initial Catalog={this.Catalog.Text};Integrated Security=true" :
+                $"Data Source={this.Server.Text};Initial Catalog={this.Catalog.Text};User Id={this.UserName.Text};Password={this.Password.Text}";
         }
     }
 }

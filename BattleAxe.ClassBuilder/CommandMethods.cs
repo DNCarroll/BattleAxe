@@ -12,19 +12,7 @@ namespace BattleAxe.Class {
         CommandType CommandType { get; set; }
         int CommandTimeout { get; set; }
     }
-
-    public class ProcedureDefinition : CommandDefinition {
-        public ProcedureDefinition(string commandText, string connectionString)
-            : base(commandText, connectionString, CommandType.StoredProcedure) {
-        }
-    }
-
-    public class TextDefinition : CommandDefinition {
-        public TextDefinition(string commandText, string connectionString)
-            : base(commandText, connectionString, CommandType.Text) {
-        }
-    }
-
+    
     public class CommandDefinition : ICommandDefinition {
         private string connectionString;
         public string ConnectionString {

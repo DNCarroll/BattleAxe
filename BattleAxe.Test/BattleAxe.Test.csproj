@@ -58,8 +58,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="battleAxeTestClass.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="ClassWithEnum.cs" />
     <Compile Include="TestObjectForDatabase.cs" />
     <Compile Include="TestStaticDynamic.cs" />
