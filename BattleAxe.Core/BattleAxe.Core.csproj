@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\BattleAxe\ADO\CommandMethods.cs" Link="ADO\CommandMethods.cs" />
+    <Compile Include="..\BattleAxe\ADO\ConnectionMaintenance.cs" Link="ADO\ConnectionMaintenance.cs" />
+    <Compile Include="..\BattleAxe\ADO\DataReaderMap.cs" Link="ADO\DataReaderMap.cs" />
+    <Compile Include="..\BattleAxe\ADO\DataReaderMethods.cs" Link="ADO\DataReaderMethods.cs" />
+    <Compile Include="..\BattleAxe\ADO\ParameterMethods.cs" Link="ADO\ParameterMethods.cs" />
+    <Compile Include="..\BattleAxe\ADO\SqlCommandCacheObject.cs" Link="ADO\SqlCommandCacheObject.cs" />
+    <Compile Include="..\BattleAxe\CommandDefinition.cs" Link="CommandDefinition.cs" />
+    <Compile Include="..\BattleAxe\Compiler.cs" Link="Compiler.cs" />
+    <Compile Include="..\BattleAxe\Dynamic.cs" Link="Dynamic.cs" />
+    <Compile Include="..\BattleAxe\Extensions\ExecuteExtensions.cs" Link="Extensions\ExecuteExtensions.cs" />
+    <Compile Include="..\BattleAxe\Extensions\FirstOrDefaultExtensions.cs" Link="Extensions\FirstOrDefaultExtensions.cs" />
+    <Compile Include="..\BattleAxe\Extensions\SqlExceptionsThatCauseRederivingSqlCommand.cs" Link="Extensions\SqlExceptionsThatCauseRederivingSqlCommand.cs" />
+    <Compile Include="..\BattleAxe\Extensions\ToListExtensions.cs" Link="Extensions\ToListExtensions.cs" />
+    <Compile Include="..\BattleAxe\Extensions\UpdateExtensions.cs" Link="Extensions\UpdateExtensions.cs" />
+    <Compile Include="..\BattleAxe\IBattleAxe.cs" Link="IBattleAxe.cs" />
+    <Compile Include="..\BattleAxe\ListTExtensions.cs" Link="ListTExtensions.cs" />
+    <Compile Include="..\BattleAxe\RegexSql.cs" Link="RegexSql.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
+    <PackageReference Include="System.CodeDom" Version="4.4.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ADO\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+</Project>
